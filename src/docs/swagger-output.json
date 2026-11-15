@@ -1,0 +1,702 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Learn Express.js API",
+    "version": "1.0.0",
+    "description": "API Documentation auto-generated with swagger-autogen"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Root",
+      "description": "Root and health check endpoints"
+    },
+    {
+      "name": "Test API Practice (Blog Posts)",
+      "description": "Endpoints for learning REST API practice (Blog Posts)"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/health-check": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/test/get-posts": {
+      "get": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Get all posts without filter",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/test/path-variables/get-posts/{id}": {
+      "get": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Get single post by ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/test/query-parameters/get-posts": {
+      "get": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Search and filter posts by query parameters",
+        "description": "",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search keyword across title, content, or author",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "published",
+            "in": "query",
+            "description": "Filter by published status (true/false)",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/test/update-posts/{id}": {
+      "put": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Update entire post by ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Updated Post Title"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "Jane Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "This is the updated content."
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                },
+                "required": [
+                  "title",
+                  "author_name",
+                  "content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test/patch-posts/{id}": {
+      "patch": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Partially update post by ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Only Update Title"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "Jane Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Updated partial content"
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test/delete-posts/{id}": {
+      "delete": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Delete post by ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/test/body/raw/create-posts": {
+      "post": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Create a new post",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "My First Post"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Learning Express.js"
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "author_name",
+                  "content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test/body/form/create-posts": {
+      "post": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Create a new post (Form Data)",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "My First Post"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Learning Express.js"
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "author_name",
+                  "content"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "My First Post"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Learning Express.js"
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "author_name",
+                  "content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test/body/urlencoded/create-posts": {
+      "post": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Create a new post (Urlencoded)",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "My First Post"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Learning Express.js"
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "author_name",
+                  "content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test/body/multipart/create-posts": {
+      "post": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Create a new post (Multipart + DB Binary, Max 500KB)",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "My First Post"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Learning Express.js"
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional attachment file (max 500KB)"
+                  }
+                },
+                "required": [
+                  "title",
+                  "author_name",
+                  "content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test/get-posts/{id}/file": {
+      "get": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Download or view post file stored in PostgreSQL",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/test/head-posts": {
+      "head": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "HEAD: Check posts headers & total count (no body)",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/test/options-posts": {
+      "options": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "OPTIONS: Check allowed HTTP methods",
+        "description": "",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/test/auth/bearer": {
+      "get": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Authenticate With Bearer Token",
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/test/auth/bearer/create-posts": {
+      "post": {
+        "tags": [
+          "Test API Practice (Blog Posts)"
+        ],
+        "summary": "Create a new post with Bearer Token",
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Protected Post"
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Created using Bearer Token"
+                  },
+                  "published": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "author_name",
+                  "content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
