@@ -1,24 +1,61 @@
-# Learn Express.js Basics
+# Express.js REST API Starter (CommonJS + Prisma 7)
 
-Notes and a practical guide for learning Express.js fundamentals with Prisma ORM (v7), PostgreSQL, Zod, Morgan, and Swagger (Swagger-Autogen).
+Notes and a practical guide for learning REST API built with Express.js, Prisma ORM 7, PostgreSQL, Zod validation, Morgan logger, and auto-generated Swagger documentation.
 
 ---
 
-## 1. Express.js & Dependencies Setup
+## ⚡ Quick Start (Running Existing Project)
+
+If you have cloned this repository, get it running locally in 4 simple steps:
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+2. **Setup environment variables:**
+   ```bash
+   cp .env.example .env
+   # Update DATABASE_URL and BEARER_TOKEN in .env if needed
+   ```
+3. **Run database migrations:**
+   ```bash
+   npx prisma migrate dev
+   ```
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   - API Server: [http://localhost:3005](http://localhost:3005)
+   - Interactive Swagger Docs: [http://localhost:3005/api-docs](http://localhost:3005/api-docs)
+   - OpenAPI JSON Spec: [http://localhost:3005/api-docs.json](http://localhost:3005/api-docs.json)
+
+---
+
+## 🛠️ Step-by-Step Setup Guide (Building From Scratch)
+
+Follow this guide if you are rebuilding the project or learning how all the pieces fit together from zero.
+
+### 1. Express.js & Dependencies Setup
 
 1. **Initialize Node.js Project**
    ```bash
    npm init -y
    ```
-2. **Install Express & Core Dependencies**
+2. **Install Core Dependencies**
    ```bash
    npm install express dotenv zod morgan multer swagger-ui-express swagger-autogen
    ```
+   - `express`: Core web application framework
+   - `dotenv`: Loads `.env` file variables into `process.env`
+   - `zod`: Request body and environment variable schema validation
+   - `morgan`: HTTP request logger
+   - `multer`: Middleware for handling `multipart/form-data` and file uploads
+   - `swagger-ui-express` & `swagger-autogen`: Interactive API documentation generated automatically from routes
 3. **Install Nodemon (Development Tool)**
    ```bash
    npm install -D nodemon
    ```
-4. **Add Scripts in `package.json`**
+4. **Configure Scripts in `package.json`**
    ```json
    "main": "src/server.js",
    "scripts": {
@@ -30,14 +67,14 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
 
 ---
 
-## 2. Prisma ORM 7 Setup (PostgreSQL)
+### 2. Prisma ORM 7 Setup (PostgreSQL)
 
-1. **Install Prisma CLI, Client & Driver Adapter**
+1. **Install Prisma CLI, Client & PostgreSQL Adapter**
    ```bash
    npm install prisma@^7.10.1 @prisma/client@^7.10.1 @prisma/adapter-pg pg
    ```
    > 💡 Pinning `^7.10.1` avoids accidentally pulling an unstable release candidate (e.g. `8.0.0-rc`) when running `npx prisma`.
-2. **Initialize Prisma**
+2. **Initialize Prisma Configuration**
    ```bash
    npx prisma init --datasource-provider postgresql
    ```
@@ -50,7 +87,6 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    BEARER_TOKEN="your-secret-token"
    ```
 4. **Configure `prisma.config.js` (Prisma 7 Standard)**
-   Migration URLs are configured through `prisma.config.js`:
    ```javascript
    require("dotenv").config();
    const { defineConfig } = require("prisma/config");
@@ -66,7 +102,23 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    });
    ```
 5. **Define Models in `prisma/schema.prisma`**
-   Create your database models (e.g., `Post`).
+   Create your database models (e.g., `Post` with binary file storage):
+   ```prisma
+   model Post {
+     id          Int      @id @default(autoincrement())
+     title       String   @db.VarChar(255)
+     author_name String   @db.VarChar(255)
+     content     String   @db.Text
+     file_data   Bytes?
+     file_name   String?  @db.VarChar(255)
+     file_mime   String?  @db.VarChar(100)
+     published   Boolean  @default(false)
+     createdAt   DateTime @default(now())
+     updatedAt   DateTime @updatedAt
+
+     @@map("posts")
+   }
+   ```
 6. **Run Database Migration (Create Tables)**
    ```bash
    npx prisma migrate dev --name init
@@ -84,18 +136,14 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    - **After `npm install` or `npm ci`** (installing packages can reset `node_modules/@prisma/client` back to the ungenerated default unless `"postinstall": "prisma generate"` is in `package.json`).
    - **After cloning the repo or switching Git branches** where `prisma/schema.prisma` changed.
    - > 💡 Always **restart your server** (`npm run dev`) after running `npx prisma generate` so Node reloads the updated `@prisma/client`.
-8. **Start the Development Server** *(after creating your `src/` files)*
-   ```bash
-   npm run dev
-   ```
 
-### Prisma Migration Cheat Sheet (Columns & Tables)
+#### Prisma Migration Cheat Sheet (Columns & Tables)
 
 Whenever you change `prisma/schema.prisma`, run `npx prisma migrate dev --name <migration_name>` to apply changes to PostgreSQL:
 
 | Operation | What to do in `schema.prisma` | Migration Command |
 | :--- | :--- | :--- |
-| **Add a Column** | Add the field (use `?` or `@default(...)` if table already has data):<br>`file String? @db.VarChar(255)` | `npx prisma migrate dev --name add_file_to_posts` |
+| **Add a Column** | Add the field (use `?` or `@default(...)` if table already has data):<br>`file_name String? @db.VarChar(255)` | `npx prisma migrate dev --name add_file_to_posts` |
 | **Rename a Column** *(Safe, preserves data)* | Use `--create-only`, then edit the generated SQL to `ALTER TABLE "posts" RENAME COLUMN "old" TO "new";` | `npx prisma migrate dev --create-only --name rename_col`<br>then `npx prisma migrate dev` |
 | **Rename a Column** *(JS/Prisma only, DB unchanged)* | Keep the DB column name with `@map`:<br>`authorName String @map("author_name")` | No migration needed—just run `npx prisma generate` |
 | **Drop a Column** | Delete the field from the `model` | `npx prisma migrate dev --name drop_file_from_posts` |
@@ -158,27 +206,20 @@ Client ──> routes ──> middleware ──> controllers ──> services �
 
 ---
 
-## 4. Middleware & Additional Dependencies
+## 4. Key Packages & Middleware Overview
 
 ### A. Zod (Schema & Input Validation)
-Used to validate incoming request bodies before processing data in the database (similar to Pydantic in Python/FastAPI):
-```bash
-npm install zod
-```
+Used in `src/schemas/postSchema.js` and `src/config/env.js` to validate incoming request bodies and environment variables (similar to Pydantic in Python/FastAPI):
 - Full schema for creating/replacing data: `postSchema`
 - Partial schema for `PATCH` requests: `updateSchema = postSchema.partial()`
+- Fails fast on startup if environment variables in `.env` are missing or invalid.
 
 ### B. Morgan (UTC+7 HTTP Request Logger)
-Logs every incoming HTTP request to the terminal with a WIB (UTC+7) timestamp:
-```bash
-npm install morgan
-```
+Configured in `src/app.js` to log every incoming HTTP request to the terminal with a WIB (UTC+7) timestamp:
+- Placed before body parsers to ensure even malformed requests are logged.
 
 ### C. Swagger UI & Swagger-Autogen (API Documentation)
-Automatically generates interactive API documentation without manually writing lengthy YAML comments:
-```bash
-npm install swagger-ui-express swagger-autogen
-```
+Configured via `src/config/swagger.js` to automatically generate OpenAPI documentation into `src/docs/swagger-output.json` without writing lengthy YAML manually:
 - Interactive Docs UI: [http://localhost:3005/api-docs](http://localhost:3005/api-docs)
 - Raw OpenAPI JSON Spec: [http://localhost:3005/api-docs.json](http://localhost:3005/api-docs.json)
 
@@ -190,17 +231,11 @@ npm install swagger-ui-express swagger-autogen
 > **Alternative Approaches (For Knowledge Reference):**
 >
 > - **`swagger-jsdoc` (JSDoc / YAML Comments):** The traditional Express standard where you write OpenAPI YAML inside `/** @openapi ... */` comments above each route (or in separate `src/docs/*.yaml` files). It gives 100% manual control over every schema and response, though it is more verbose.
->   ```bash
->   npm install swagger-ui-express swagger-jsdoc
->   ```
 > - **`zod-to-openapi` (`@asteasolutions/zod-to-openapi`):** Generates OpenAPI schemas directly from Zod schemas so validation and docs share a single source of truth (similar to FastAPI + Pydantic, best paired with TypeScript or modern frameworks like Hono/Fastify).
 > - **Postman / Apidog Collections:** Many Express teams skip in-code Swagger entirely and share exported Postman/Apidog collections instead.
 
 ### D. Multer, Form Data & File Upload (`multipart/form-data` & `x-www-form-urlencoded`)
-Express's built-in `express.json()` only parses JSON bodies. To support HTML forms, `multipart/form-data`, and file uploads:
-```bash
-npm install multer
-```
+Express's built-in `express.json()` only parses JSON bodies. Multer handles multi-part form data and file uploads:
 - **`express.urlencoded({ extended: true })`**: Built-in Express middleware in `src/app.js` for `application/x-www-form-urlencoded`.
 - **`multer` (`upload.none()`)**: Used on text-only form-data routes (`/api/test/body/form/create-posts`) to parse `multipart/form-data` fields into `req.body`.
 - **`multer` (`upload.single("file")`)**: Configured in `src/middleware/upload.js` with `multer.memoryStorage()` and a strict **500 KB** limit (`500 * 1024`). Uploaded bytes (`file_data`), `file_name`, and `file_mime` are stored in PostgreSQL (`Bytes?`), omitted from JSON list/detail responses via `omit: { file_data: true }`, and served via `GET /api/test/get-posts/:id/file`. Exceeding 500 KB is caught by `src/middleware/errorHandler.js` (`400`).
@@ -299,4 +334,3 @@ In Node.js (CommonJS), everything inside a `.js` file is **private** unless expo
 - **`require(...)`** is the actual import call; **`const`** simply stores the returned value in a constant variable.
 - Use **`{ ... }`** when picking named properties out of an exported object (even if you only pick 1, like `{ z }`). Omit `{ ... }` when the file exports a single item directly (`module.exports = prisma`).
 - Paths starting with `./` or `../` load your local files; names without them (like `"express"`, `"zod"`, `"crypto"`) load `node_modules/` or built-in Node modules.
-
