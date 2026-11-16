@@ -4,7 +4,7 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
 
 ---
 
-## 1. Express.js Setup
+## 1. Express.js & Dependencies Setup
 
 1. **Initialize Node.js Project**
    ```bash
@@ -12,7 +12,7 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    ```
 2. **Install Express & Core Dependencies**
    ```bash
-   npm install express dotenv
+   npm install express dotenv zod morgan multer swagger-ui-express swagger-autogen
    ```
 3. **Install Nodemon (Development Tool)**
    ```bash
@@ -20,15 +20,12 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    ```
 4. **Add Scripts in `package.json`**
    ```json
+   "main": "src/server.js",
    "scripts": {
      "start": "node src/server.js",
      "dev": "nodemon --ignore src/docs/swagger-output.json --exec \"node src/config/swagger.js && node src/server.js\"",
      "swagger": "node src/config/swagger.js"
    }
-   ```
-5. **Start the Development Server**
-   ```bash
-   npm run dev
    ```
 
 ---
@@ -45,9 +42,12 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    npx prisma init --datasource-provider postgresql
    ```
    > 💡 `prisma init` generates `prisma.config.ts` by default (even in JS projects). You can keep `.ts` (Prisma CLI runs it directly) or rename/convert it to `prisma.config.js` for pure CommonJS. `prisma/migrations/` appears later when you run your first `npx prisma migrate dev`.
-3. **Configure Database Connection in `.env`**
+3. **Configure Environment Variables in `.env`**
    ```env
+   NODE_ENV=development
+   PORT=3005
    DATABASE_URL="postgresql://user:password@localhost:5432/db_name"
+   BEARER_TOKEN="your-secret-token"
    ```
 4. **Configure `prisma.config.js` (Prisma 7 Standard)**
    Migration URLs are configured through `prisma.config.js`:
@@ -71,6 +71,10 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    ```bash
    npx prisma migrate dev --name init
    ```
+   > 💡 **PostgreSQL 15+ Permission Fix:** If you get `ERROR: permission denied for schema public`, grant ownership and schema privileges as `postgres`:
+   > ```bash
+   > sudo -u postgres psql -d <db_name> -c "ALTER DATABASE <db_name> OWNER TO <db_user>; GRANT ALL ON SCHEMA public TO <db_user>; ALTER USER <db_user> CREATEDB;"
+   > ```
 7. **Generate Prisma Client**
    ```bash
    npx prisma generate
@@ -80,6 +84,10 @@ Notes and a practical guide for learning Express.js fundamentals with Prisma ORM
    - **After `npm install` or `npm ci`** (installing packages can reset `node_modules/@prisma/client` back to the ungenerated default unless `"postinstall": "prisma generate"` is in `package.json`).
    - **After cloning the repo or switching Git branches** where `prisma/schema.prisma` changed.
    - > 💡 Always **restart your server** (`npm run dev`) after running `npx prisma generate` so Node reloads the updated `@prisma/client`.
+8. **Start the Development Server** *(after creating your `src/` files)*
+   ```bash
+   npm run dev
+   ```
 
 ### Prisma Migration Cheat Sheet (Columns & Tables)
 
