@@ -83,9 +83,10 @@ Follow this guide if you are rebuilding the project or learning how all the piec
    ```env
    NODE_ENV=development
    PORT=3005
-   DATABASE_URL="postgresql://user:password@localhost:5432/db_name"
+   DATABASE_URL="postgresql://user:password@localhost:5432/dev_playground?schema=express_cjs"
    BEARER_TOKEN="your-secret-token"
    ```
+   > 💡 **PostgreSQL Schema Isolation:** Instead of creating a brand-new database for every test project, you can use a single database (e.g. `dev_playground`) and isolate projects using schemas via `?schema=<schema_name>` (e.g. `express_cjs`, `express_esm`, `express_ts`, `fastapi_api`). Prisma will automatically create the schema if it does not exist during migrations.
 4. **Configure `prisma.config.js` (Prisma 7 Standard)**
    ```javascript
    require("dotenv").config();
@@ -136,6 +137,30 @@ Follow this guide if you are rebuilding the project or learning how all the piec
    - **After `npm install` or `npm ci`** (installing packages can reset `node_modules/@prisma/client` back to the ungenerated default unless `"postinstall": "prisma generate"` is in `package.json`).
    - **After cloning the repo or switching Git branches** where `prisma/schema.prisma` changed.
    - > 💡 Always **restart your server** (`npm run dev`) after running `npx prisma generate` so Node reloads the updated `@prisma/client`.
+8. **Configure Prisma Client with Driver Adapter (`src/config/database.js`)**
+   In Prisma 7, the PostgreSQL driver adapter (`@prisma/adapter-pg`) is used to manage database connections.
+   ```javascript
+   // src/config/database.js
+   const config = require("./env");
+   const { PrismaClient } = require("@prisma/client");
+   const { PrismaPg } = require("@prisma/adapter-pg");
+
+   // Extract schema from DATABASE_URL (default to "public" if omitted)
+   const url = new URL(config.databaseUrl);
+   const schema = url.searchParams.get("schema") || "public";
+
+   const adapter = new PrismaPg(
+     {
+       connectionString: config.databaseUrl,
+     },
+     { schema } // 👈 Required: informs driver adapter which schema to query
+   );
+
+   const prisma = new PrismaClient({ adapter });
+
+   module.exports = prisma;
+   ```
+   > ⚠️ **Important (`@prisma/adapter-pg` Schema Warning):** Unlike standard Prisma, `@prisma/adapter-pg` does not automatically infer the `?schema=...` parameter from the URL string. You **must** pass `{ schema }` in the second argument of `new PrismaPg(...)`, otherwise Prisma defaults queries to `public.<table_name>` and fails with `P2021: TableDoesNotExist`.
 
 #### Prisma Migration Cheat Sheet (Columns & Tables)
 
