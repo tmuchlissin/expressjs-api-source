@@ -1,6 +1,6 @@
 # Express.js REST API Starter (CommonJS + Prisma 7)
 
-Notes and a practical guide for learning REST API built with Express.js, Prisma ORM 7, PostgreSQL, Zod validation, Morgan logger, and auto-generated Swagger documentation.
+Notes and a practical guide for learning REST API built with Express.js (CommonJS), Prisma ORM 7, PostgreSQL, Zod validation, Morgan logger, and auto-generated Swagger documentation.
 
 ---
 
